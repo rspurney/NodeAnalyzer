@@ -1,8 +1,10 @@
 library(shiny)
+library(here)
 #library(rsconnect)
 
-setwd("/Users/ryan/Documents/NCSU/Sozzani Lab/Robustness Analysis")
-source("calcRobustness.R")
+# Find app directory and source robustness function
+appDirectory = here()
+source(paste(appDirectory, "/calcRobustness.R", sep = ""))
 
 # Define UI
 ui <- fluidPage(
