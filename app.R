@@ -8,28 +8,32 @@ source(paste(appDirectory, "/calcRobustness.R", sep = ""))
 
 # Define UI
 ui <- fluidPage(
+  # App title
   titlePanel("Robustness Analyzer"),
+  # Sidebar layout
   sidebarLayout(
+    # Side panel
     sidebarPanel(
+      # Node table file selector
       fileInput("nodeTableFile", "Choose Node Table File",
                 accept = c(
                   "text/csv",
                   "text/comma-separated-values,text/plain",
                   ".csv")
                 ),
-  
+      # Edge table file selector
       fileInput("edgeTableFile", "Choose Edge Table File",
                 accept = c(
                   "text/csv",
                   "text/comma-separated-values,text/plain",
                   ".csv")
                 ),
-  
+      # Run button
       actionButton("run", "Run Analysis"),
-  
+      # Download button
       downloadButton("download", "Download Results")
       ),
-    
+    # Main panel
     mainPanel(
       tableOutput("scoringTable")
     )
