@@ -58,5 +58,11 @@ calcRobustness <- function(nodeTableFile, edgeTableFile) {
   # Sort by impact factor
   scoringTable <- scoringTable[order(scoringTable$Impact, decreasing = TRUE), ]
   
-  return(scoringTable)
+  # Move row names to first column
+  scoringTableOut <- scoringTable
+  row.names(scoringTableOut) <- NULL
+  scoringTableOut <- cbind(row.names(scoringTable), scoringTableOut)
+  names(scoringTableOut)[1] <- "Gene"
+  
+  return(scoringTableOut)
 }
