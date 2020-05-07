@@ -30,13 +30,14 @@ ui <- fluidPage(
       ),
     # Main panel
     mainPanel(
-      tableOutput("scoringTable")
+      tableOutput("table")
     )
   )
 )
 
 # Define server
 server <- function(input, output) {
+  # Run button pushed
   observeEvent(input$run, {
     # Check for valid node and edge table files
     errorState = FALSE
@@ -56,19 +57,19 @@ server <- function(input, output) {
     
     # Perform analysis
     print("Starting analysis...")
-    scoringTable <- calcRobustness(input$nodeTableFile, input$edgeTableFile)
+    scoringTable <<- calcRobustness(input$nodeTableFile, input$edgeTableFile) # <<- denotes global variable
     print("Finished analysis.")
     
     # Show table of results
-    output$scoringTable <- renderTable(scoringTable, rownames = TRUE)
+    output$table <- renderTable(scoringTable, rownames = FALSE)
   })
   
+  # Download button pushed
   output$download <- downloadHandler(
-    filename = "robustnessAnalysis.csv",
+    filename = paste("robustnessAnalysis-", Sys.Date(), ".csv", sep = ""),
     content = function(file) {
-      write.csv(scoringTable, file, row.names = TRUE)
-    }
-  )
+      write.csv(scoringTable, file, row.names = FALSE)
+    })
 }
 
 shinyApp(ui = ui, server = server)
