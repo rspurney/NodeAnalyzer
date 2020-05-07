@@ -30,7 +30,8 @@ ui <- fluidPage(
       ),
     # Main panel
     mainPanel(
-      tableOutput("table")
+      tableOutput("table"),
+      verbatimTextOutput("stats")
     )
   )
 )
@@ -60,15 +61,18 @@ server <- function(input, output) {
     scoringTable <<- calcRobustness(input$nodeTableFile, input$edgeTableFile) # <<- denotes global variable
     print("Finished analysis.")
     
-    # Show table of results
+    # Show table of results and stats
     output$table <- renderTable(scoringTable, rownames = FALSE)
+    output$stats <- renderPrint(summary(scoringTable$Impact))
   })
   
   # Download button pushed
   output$download <- downloadHandler(
     filename = paste("robustnessAnalysis-", Sys.Date(), ".csv", sep = ""),
     content = function(file) {
+      print("Starting download...")
       write.csv(scoringTable, file, row.names = FALSE)
+      print("Finished download.")
     })
 }
 
