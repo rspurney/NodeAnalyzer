@@ -5,6 +5,7 @@ library(shiny)
 ui <- fluidPage(
   # App title
   titlePanel("Robustness Analyzer"),
+  
   # Sidebar layout
   sidebarLayout(
     # Side panel
@@ -16,6 +17,7 @@ ui <- fluidPage(
                   "text/comma-separated-values,text/plain",
                   ".csv")
                 ),
+      
       # Edge table file selector
       fileInput("edgeTableFile", "Choose Edge Table File",
                 accept = c(
@@ -23,14 +25,20 @@ ui <- fluidPage(
                   "text/comma-separated-values,text/plain",
                   ".csv")
                 ),
+      
       # Run button
       actionButton("run", "Run Analysis"),
+      
       # Download button
       downloadButton("download", "Download Results")
       ),
+    
     # Main panel
     mainPanel(
+      # Score table
       tableOutput("table"),
+      
+      # Score stats
       verbatimTextOutput("stats")
     )
   )
