@@ -6,9 +6,7 @@ ui <- fluidPage(
   # App title
   titlePanel("Robustness Analyzer"),
   
-  # Sidebar layout
   sidebarLayout(
-    # Side panel
     sidebarPanel(
       # Node table file selector
       fileInput("nodeTableFile", "Choose Node Table File",
@@ -33,13 +31,21 @@ ui <- fluidPage(
       downloadButton("download", "Download Results")
       ),
     
-    # Main panel
     mainPanel(
-      # Score table
-      tableOutput("table"),
-      
-      # Score stats
-      verbatimTextOutput("stats")
+      sidebarLayout(
+        sidebarPanel(
+          # Score table
+          tableOutput("table"),
+          
+          #Score stats
+          verbatimTextOutput("stats")
+        ),
+        
+        mainPanel(
+          # Score plot
+          plotOutput("plot")
+        )
+      )
     )
   )
 )
@@ -69,9 +75,12 @@ server <- function(input, output) {
     scoringTable <<- calcRobustness(input$nodeTableFile, input$edgeTableFile) # <<- denotes global variable
     print("Finished analysis.")
     
-    # Show table of results and stats
+    # Show outputs
     output$table <- renderTable(scoringTable, rownames = FALSE)
     output$stats <- renderPrint(summary(scoringTable$Impact))
+    output$plot <- renderPlot({
+      plot(scoringTable$Gene, scoringTable$Impact, xlab = "", ylab = "Impact", cex.axis = 0.75, las = 2)
+      })
   })
   
   # Download button pushed
