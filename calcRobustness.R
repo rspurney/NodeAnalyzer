@@ -50,8 +50,9 @@ calcRobustness <- function(nodeTableFile, edgeTableFile) {
         outdegreeWeight <- outdegreeWeight + scoringTable[interactionTable[interaction, "Target"], "Weight"]
       }
     }
-    # Calculate impact factor
+    # Get outdegree factor (average shortest path length for given gene)
     outdegreeFactor <- nodeTable[gene, "AverageShortestPathLength"]
+    # Calculate impact factor
     scoringTable[gene, "Impact"] <- (outdegreeFactor * outdegreeWeight) + (indegreeFactor * indegreeWeight)
   }
   
