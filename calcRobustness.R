@@ -7,9 +7,11 @@ calcRobustness <- function(nodeTableFile, edgeTableFile) {
   edgeDim <- dim(edgeTable)
   
   # Create empty scoring table
-  scoringTable <- as.data.frame(matrix(0, ncol = 2, nrow = nodeDim[1]))
-  names(scoringTable) <- c("Weight", "Impact")
+  scoringTable <- as.data.frame(matrix(0, ncol = 4, nrow = nodeDim[1]))
+  names(scoringTable) <- c("Impact", "Weight", "Outdegree", "Indegree")
   row.names(scoringTable) <- row.names(nodeTable)
+  scoringTable[ , "Outdegree"] <- nodeTable[ , "Outdegree"]
+  scoringTable[ , "Indegree"] <- nodeTable[ , "Indegree"]
   
   # Calculate weights (1 + outdegree / maxOutdegree)
   maxOutdegree = max(nodeTable$Outdegree)
