@@ -4,7 +4,7 @@ library(shiny)
 # Define UI
 ui <- fluidPage(
   # App title
-  titlePanel("Robustness Analyzer"),
+  titlePanel("Node Analyzer"),
   
   sidebarLayout(
     sidebarPanel(
@@ -28,23 +28,24 @@ ui <- fluidPage(
       actionButton("run", "Run Analysis"),
       
       # Download button
-      downloadButton("download", "Download Results")
+      downloadButton("download", "Download Results"),
+      
+      # Instructions
+      headerPanel(""),
+      h4("Instructions"),
+      p("Use the app"),
+      
       ),
     
     mainPanel(
-      sidebarLayout(
-        sidebarPanel(
-          # Score table
-          tableOutput("table"),
-          
-          #Score stats
-          verbatimTextOutput("stats")
-        ),
-        
-        mainPanel(
-          # Score plot
-          plotOutput("plot")
-        )
+      tabsetPanel(
+        # Score table
+        tabPanel("Genes Table", tableOutput("table")),
+      
+        # Plots
+        tabPanel("Impact Plot", plotOutput("impactPlot")),
+        tabPanel("Outdegree Plot", plotOutput("outdegreePlot")),
+        tabPanel("Indegree Plot", plotOutput("indegreePlot"))
       )
     )
   )
@@ -77,15 +78,20 @@ server <- function(input, output) {
     
     # Show outputs
     output$table <- renderTable(scoringTable, rownames = FALSE)
-    output$stats <- renderPrint(summary(scoringTable$Impact))
-    output$plot <- renderPlot({
+    output$impactPlot <- renderPlot({
       plot(scoringTable$Gene, scoringTable$Impact, xlab = "", ylab = "Impact", cex.axis = 0.75, las = 2)
+      })
+    output$outdegreePlot <- renderPlot({
+      hist(scoringTable$Outdegree, main = "", xlab = "Outdegree", xlim = c(0, max(scoringTable$Outdegree)))
+      })
+    output$indegreePlot <- renderPlot({
+      hist(scoringTable$Indegree, main = "", xlab = "Indegree", xlim = c(0, max(scoringTable$Indegree)))
       })
   })
   
   # Download button pushed
   output$download <- downloadHandler(
-    filename = paste("robustnessAnalysis-", Sys.Date(), ".csv", sep = ""),
+    filename = paste("nodeAnalysis-", Sys.Date(), ".csv", sep = ""),
     content = function(file) {
       print("Starting download...")
       write.csv(scoringTable, file, row.names = FALSE)
