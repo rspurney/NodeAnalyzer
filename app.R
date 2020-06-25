@@ -1,5 +1,4 @@
 library(shiny)
-#library(rsconnect)
 
 # Define UI
 ui <- fluidPage(
@@ -104,6 +103,79 @@ server <- function(input, output) {
       write.csv(scoringTable, file, row.names = FALSE)
       print("Finished download.")
     })
+  
+  # Function for calculating impact factors
+  calcRobustness <- function(nodeTableFile, edgeTableFile) {
+    # Import node and edge tables
+    nodeTable <- read.csv(nodeTableFile$datapath, header = TRUE)
+    nodeDim <- dim(nodeTable)
+    row.names(nodeTable) <- nodeTable$shared.name
+    edgeTable <- read.csv(edgeTableFile$datapath, header = TRUE)
+    edgeDim <- dim(edgeTable)
+    
+    # Create empty scoring table
+    scoringTable <- as.data.frame(matrix(0, ncol = 4, nrow = nodeDim[1]))
+    names(scoringTable) <- c("Impact", "Weight", "Outdegree", "Indegree")
+    row.names(scoringTable) <- row.names(nodeTable)
+    scoringTable[ , "Outdegree"] <- nodeTable[ , "Outdegree"]
+    scoringTable[ , "Indegree"] <- nodeTable[ , "Indegree"]
+    
+    # Calculate weights (1 + outdegree / maxOutdegree)
+    maxOutdegree = max(nodeTable$Outdegree)
+    for (gene in row.names(nodeTable)) {
+      scoringTable[gene, "Weight"] = 1 + (nodeTable[gene, "Outdegree"] / maxOutdegree)
+    }
+    
+    # Calculate indegree factor (# of genes with outdegree > 0)
+    indegreeFactor <- 0
+    for (gene in row.names(nodeTable)) {
+      if (nodeTable[gene, "Outdegree"] > 0) {
+        indegreeFactor <- indegreeFactor + 1
+      }
+    }
+    indegreeFactor <- indegreeFactor / nodeDim[1]
+    
+    # Parse interactions
+    interactionTable <- as.data.frame(matrix(0, ncol = 3, nrow = edgeDim[1]))
+    names(interactionTable) <- c("Source", "Type", "Target")
+    for (interaction in row.names(edgeTable)) {
+      interactionTable[interaction , ] <- trimws(t(unlist(strsplit(toString(edgeTable[interaction,
+                                                                                      "shared.name"]),
+                                                                   "[()]"))))
+    }
+    
+    # Calculate impact factors
+    for (gene in row.names(nodeTable)) {
+      # Calculate sum of indegree and outdegree weights
+      indegreeWeight <- 0
+      outdegreeWeight <- 0
+      for (interaction in row.names(edgeTable)) {
+        # Indegree weights
+        if (gene == interactionTable[interaction, "Target"]) {
+          indegreeWeight <- indegreeWeight + scoringTable[interactionTable[interaction, "Source"], "Weight"]
+        }
+        # Outdegree weights
+        if (gene == interactionTable[interaction, "Source"]) {
+          outdegreeWeight <- outdegreeWeight + scoringTable[interactionTable[interaction, "Target"], "Weight"]
+        }
+      }
+      # Get outdegree factor (average shortest path length for given gene)
+      outdegreeFactor <- nodeTable[gene, "AverageShortestPathLength"]
+      # Calculate impact factor
+      scoringTable[gene, "Impact"] <- (outdegreeFactor * outdegreeWeight) + (indegreeFactor * indegreeWeight)
+    }
+    
+    # Sort by impact factor
+    scoringTable <- scoringTable[order(scoringTable$Impact, decreasing = TRUE), ]
+    
+    # Move row names to first column
+    scoringTableOut <- scoringTable
+    row.names(scoringTableOut) <- NULL
+    scoringTableOut <- cbind(row.names(scoringTable), scoringTableOut)
+    names(scoringTableOut)[1] <- "Gene"
+    
+    return(scoringTableOut)
+  }
 }
 
 shinyApp(ui = ui, server = server)
