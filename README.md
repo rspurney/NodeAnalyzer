@@ -1,5 +1,5 @@
 # NodeAnalyzer
-App to calculate the overall impact of each gene in a given gene regulatory network.
+App to calculate the overall impact of each gene in a given gene regulatory network. Also available online at https://rspurney.shinyapps.io/nodeanalyzer/.
 
 ## Required packages
 shiny: `install.packages("shiny")`
