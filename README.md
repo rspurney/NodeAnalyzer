@@ -23,4 +23,4 @@ A = Nodes(outdegree>0)/Nodes
 where R = Robustness, ASPL = Average Shortest Path Length, O = outdegree, and I = indegree. A scale-free network will have a low A, while a scale-rich network will have a high A, allowing for the indegree to contribute more to the impact of a node. Because the first neighbors are weighted in regards to their outdegree, genes with a lower outdegree can still have a large impact if its neighbors have a high outdegree and the gene is thus centrally located. Genes with a large number of cascading targets that are 2 or more nodes away will have a higher ASPL and thus a higher scaled outdegree weight, accurately reflecting the hierarchical importance of the source gene itself and its first neighbors targets.
 
 ## Citation
-GIF1 paper
+Van den Broeck, L., Spurney, R., Fisher, A., Schwartz, M., Clark, N., Nguyen, T., . . . Sozzani, R. (2021). A hybrid model connecting regulatory interactions with stem cell divisions in the root. Quantitative Plant Biology, 2, E2. doi:10.1017/qpb.2021.1
